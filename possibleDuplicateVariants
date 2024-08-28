@@ -10,13 +10,13 @@ Sub HighlightSimilarText()
     Set ws = ThisWorkbook.Sheets("Sheet1")
     
     ' Loop through each cell in the range to compare with every other cell
-    For Each cell1 In ws.Range("A2:A18") ' Adjust the range as needed
+    For Each cell1 In ws.Range("A:A") ' Adjust the range as needed
         If cell1.Value <> "" Then
             ' Split the words in the first cell
             arr1 = Split(cell1.Value, " ")
             
             ' Loop through each cell again to compare with cell1
-            For Each cell2 In ws.Range("A2:A18")
+            For Each cell2 In ws.Range("A:A")
                 If cell2.Address <> cell1.Address And cell2.Value <> "" Then
                     ' Split the words in the second cell
                     arr2 = Split(cell2.Value, " ")
