@@ -1,42 +1,38 @@
-Sub HighlightSimilarText()
+Sub HighlightSimilarCells()
+
     Dim ws As Worksheet
     Dim cell1 As Range, cell2 As Range
-    Dim arr1() As String, arr2() As String
-    Dim dict As Object
-    Dim word As Variant
-    Dim i As Integer, count As Integer
+    Dim words1 As Variant, words2 As Variant
+    Dim count As Integer
+    Dim lastRow As Long
+
+    ' Ensure that the sheet name is correct
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Ensure "Sheet1" exists in your workbook
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row ' Change to reflect the column you're looking at
     
-    ' Set your worksheet - change "Sheet1" to your actual sheet name
-    Set ws = ThisWorkbook.Sheets("Sheet1")
+    ' Turn off screen updating and calculations
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
     
-    ' Loop through each cell in the range to compare with every other cell
-    For Each cell1 In ws.Range("A:A") ' Adjust the range as needed
+    ' Loop through each cell in column A (corrected range)
+    For Each cell1 In ws.Range("A1:A" & lastRow) ' Change to reflect the column you're looking at
         If cell1.Value <> "" Then
-            ' Split the words in the first cell
-            arr1 = Split(cell1.Value, " ")
+            words1 = Split(cell1.Value, " ")
             
-            ' Loop through each cell again to compare with cell1
-            For Each cell2 In ws.Range("A:A")
-                If cell2.Address <> cell1.Address And cell2.Value <> "" Then
-                    ' Split the words in the second cell
-                    arr2 = Split(cell2.Value, " ")
-                    
-                    ' Use dictionary to count common words
-                    Set dict = CreateObject("Scripting.Dictionary")
+            ' Compare against all other cells below (corrected range)
+            For Each cell2 In ws.Range(cell1.Offset(1, 0), ws.Cells(lastRow, 7)) 
+                If cell2.Value <> "" Then
+                    words2 = Split(cell2.Value, " ")
                     count = 0
                     
-                    ' Store words from the first cell in the dictionary
-                    For i = LBound(arr1) To UBound(arr1)
-                        dict(Trim(arr1(i))) = True
+                    ' Compare words between the two cells
+                    For i = LBound(words1) To UBound(words1)
+                        For j = LBound(words2) To UBound(words2)
+                            If words1(i) = words2(j) Then count = count + 1
+                        Next j
                     Next i
                     
-                    ' Check for common words in the second cell
-                    For i = LBound(arr2) To UBound(arr2)
-                        word = Trim(arr2(i))
-                        If dict.exists(word) Then count = count + 1
-                    Next i
-                    
-                    ' If at least 2 words are common, highlight both cells
+                    ' Highlight if 3 or more words are in common
                     If count >= 3 Then
                         cell1.Interior.Color = vbYellow
                         cell2.Interior.Color = vbYellow
@@ -46,6 +42,11 @@ Sub HighlightSimilarText()
         End If
     Next cell1
     
-    MsgBox "Cells with at least two common words have been highlighted."
-End Sub
+    ' Restore screen updating and calculations
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    
+    ' Clear status bar
+    Application.StatusBar = False
 
+End Sub
